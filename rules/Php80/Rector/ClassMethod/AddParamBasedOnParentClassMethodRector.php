@@ -240,14 +240,14 @@ CODE_SAMPLE
         return $node;
     }
 
-    private function resolveParamDefault(Expr $paramDefault): Expr
+    private function resolveParamDefault(Expr $expr): Expr
     {
-        if ($paramDefault instanceof Array_) {
+        if ($expr instanceof Array_) {
             // re-create array to avoid TokenStream error
-            return new Array_($paramDefault->items);
+            return new Array_($expr->items);
         }
 
-        $printParamDefault = $this->betterStandardPrinter->print($paramDefault);
+        $printParamDefault = $this->betterStandardPrinter->print($expr);
         return new ConstFetch(new Name($printParamDefault));
     }
 
