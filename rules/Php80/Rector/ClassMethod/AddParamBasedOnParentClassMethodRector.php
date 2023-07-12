@@ -8,6 +8,8 @@ use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\ComplexType;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
@@ -213,8 +215,13 @@ CODE_SAMPLE
             $paramDefault = $parentClassMethodParam->default;
 
             if ($paramDefault instanceof Expr) {
-                $printParamDefault = $this->betterStandardPrinter->print($paramDefault);
-                $paramDefault = new ConstFetch(new Name($printParamDefault));
+                if ($paramDefault instanceof Array_) {
+                    // re-create array to avoid TokenStream error
+                    $paramDefault = new Array_($paramDefault->items);
+                } else {
+                    $printParamDefault = $this->betterStandardPrinter->print($paramDefault);
+                    $paramDefault = new ConstFetch(new Name($printParamDefault));
+                }
             }
 
             $paramName = $this->nodeNameResolver->getName($parentClassMethodParam);
