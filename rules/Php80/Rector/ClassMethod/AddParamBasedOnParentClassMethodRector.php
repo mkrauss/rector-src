@@ -215,13 +215,7 @@ CODE_SAMPLE
             $paramDefault = $parentClassMethodParam->default;
 
             if ($paramDefault instanceof Expr) {
-                if ($paramDefault instanceof Array_) {
-                    // re-create array to avoid TokenStream error
-                    $paramDefault = new Array_($paramDefault->items);
-                } else {
-                    $printParamDefault = $this->betterStandardPrinter->print($paramDefault);
-                    $paramDefault = new ConstFetch(new Name($printParamDefault));
-                }
+                $paramDefault = $this->resolveParamDefault($paramDefault);
             }
 
             $paramName = $this->nodeNameResolver->getName($parentClassMethodParam);
@@ -244,6 +238,17 @@ CODE_SAMPLE
         }
 
         return $node;
+    }
+
+    private function resolveParamDefault(Expr $paramDefault): Expr
+    {
+        if ($paramDefault instanceof Array_) {
+            // re-create array to avoid TokenStream error
+            return new Array_($paramDefault->items);
+        }
+
+        $printParamDefault = $this->betterStandardPrinter->print($paramDefault);
+        return new ConstFetch(new Name($printParamDefault));
     }
 
     private function resolveParamType(Param $param): null|Identifier|Name|ComplexType
